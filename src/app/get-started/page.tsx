@@ -9,22 +9,27 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import { CheckCircle, FileText, Shield } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function GetStarted() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
+    countryCode: "+92",
+    cnic: "",
     ndaAccepted: false,
     termsAccepted: false
   });
+  const [showNOCDetails, setShowNOCDetails] = useState(false);
+  const [showNDADetails, setShowNDADetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.ndaAccepted || !formData.termsAccepted) {
-      alert("Please accept both the NDA and Terms & Conditions to continue.");
+      toast.error("Please accept both the NDA and Terms & Conditions to continue.");
       return;
     }
 
@@ -41,11 +46,13 @@ export default function GetStarted() {
       });
 
       if (response.ok) {
-        alert("Thank you! Your information has been submitted successfully. We'll be in touch soon.");
+        toast.success("Thank you! Your information has been submitted successfully. We'll be in touch soon.");
         setFormData({
           name: "",
           email: "",
           phone: "",
+          countryCode: "+92",
+          cnic: "",
           ndaAccepted: false,
           termsAccepted: false
         });
@@ -54,7 +61,7 @@ export default function GetStarted() {
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Sorry, there was an error submitting your information. Please try again.");
+      toast.error("Sorry, there was an error submitting your information. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -62,10 +69,31 @@ export default function GetStarted() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
+    
+    // Auto-format CNIC as user types
+    if (name === 'cnic') {
+      // Remove all non-digit characters
+      const cleanValue = value.replace(/\D/g, '');
+      
+      // Format as XXXXX-XXXXXXX-X
+      let formattedValue = cleanValue;
+      if (cleanValue.length > 5) {
+        formattedValue = cleanValue.slice(0, 5) + '-' + cleanValue.slice(5);
+      }
+      if (cleanValue.length > 12) {
+        formattedValue = cleanValue.slice(0, 5) + '-' + cleanValue.slice(5, 12) + '-' + cleanValue.slice(12, 13);
+      }
+      
+      setFormData({
+        ...formData,
+        cnic: formattedValue
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: type === 'checkbox' ? checked : value
+      });
+    }
   };
 
   return (
@@ -126,6 +154,7 @@ export default function GetStarted() {
                         name="email"
                         type="email"
                         required
+                        pattern="^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$"
                         value={formData.email}
                         onChange={handleChange}
                         className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 rounded-xl focus:border-blue-500"
@@ -133,20 +162,61 @@ export default function GetStarted() {
                       />
                     </div>
 
+                    <div className="flex gap-4">
+                      <div className="w-1/3">
+                        <label htmlFor="countryCode" className="block text-sm font-medium text-slate-300 mb-2">
+                          Country Code
+                        </label>
+                        <select
+                          id="countryCode"
+                          name="countryCode"
+                          value={formData.countryCode}
+                          onChange={handleChange}
+                          className="bg-slate-700/50 border-slate-600 text-white rounded-xl focus:border-blue-500 w-full"
+                        >
+                          <option value="+92">+92 (Pakistan)</option>
+                          <option value="+1">+1 (USA)</option>
+                          <option value="+44">+44 (UK)</option>
+                          <option value="+971">+971 (UAE)</option>
+                          <option value="+61">+61 (Australia)</option>
+                          <option value="+91">+91 (India)</option>
+                        </select>
+                      </div>
+                      <div className="w-2/3">
+                        <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-2">
+                          Phone Number *
+                        </label>
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          required
+                          pattern="^[0-9]{7,15}$"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 rounded-xl focus:border-blue-500"
+                          placeholder="3001234567"
+                        />
+                      </div>
+                    </div>
+
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-2">
-                        Phone Number *
+                      <label htmlFor="cnic" className="block text-sm font-medium text-slate-300 mb-2">
+                        CNIC (Pakistani National ID) *
                       </label>
                       <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
+                        id="cnic"
+                        name="cnic"
+                        type="text"
                         required
-                        value={formData.phone}
+                        pattern="^[0-9]{5}-[0-9]{7}-[0-9]{1}$|^[0-9]{13}$"
+                        maxLength={15}
+                        value={formData.cnic}
                         onChange={handleChange}
                         className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 rounded-xl focus:border-blue-500"
-                        placeholder="+1 (555) 123-4567"
+                        placeholder="3440257095685 or 34402-5709568-5"
                       />
+                      <span className="text-xs text-slate-400">Enter 13 digits (auto-formatted) or 12345-1234567-1</span>
                     </div>
                   </div>
 
@@ -154,7 +224,71 @@ export default function GetStarted() {
                   <div className="space-y-6">
                     <h3 className="text-2xl font-bold text-white mb-6">Agreements</h3>
 
-                    {/* NDA Agreement */}
+                    {/* USER AGREEMENT (NOC) */}
+                    <div className="flex items-start gap-4 p-6 bg-slate-700/30 rounded-xl border border-slate-600/50">
+                      <Checkbox
+                        id="termsAccepted"
+                        name="termsAccepted"
+                        checked={formData.termsAccepted}
+                        onCheckedChange={(checked) =>
+                          setFormData({ ...formData, termsAccepted: checked as boolean })
+                        }
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="w-5 h-5 text-blue-400" />
+                          <label htmlFor="termsAccepted" className="text-lg font-semibold text-white cursor-pointer">
+                            User Agreement (NOC)
+                          </label>
+                        </div>
+                        {!showNOCDetails ? (
+                          <div className="text-slate-300 mb-4 text-sm">
+                            <span className="font-semibold">Summary:</span> By checking this box, you agree to our payment, refund, dispute, confidentiality, and voluntary consent terms. <button type="button" className="text-blue-400 underline ml-2" onClick={() => setShowNOCDetails(true)}>More Details</button>
+                          </div>
+                        ) : (
+                          <div className="text-slate-300 mb-4 text-sm space-y-2">
+                            <strong className="block text-white mb-2">1. Payment Terms:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>All payments must be made from the user’s own verified bank account or payment method.</li>
+                              <li>Any refunds or paybacks will be sent only to the original source account from which the payment was made.</li>
+                            </ul>
+                            <strong className="block text-white mt-4 mb-2">2. Refund Policy:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>Refunds are allowed within 3 hours of the initial payment, only if the project/work has not been started.</li>
+                              <li>Once the work has commenced or been delivered, no refunds will be issued.</li>
+                              <li>In the case of a chargeback or failed transaction, any valid claim will be reviewed, and the appropriate amount will be returned if eligible.</li>
+                            </ul>
+                            <strong className="block text-white mt-4 mb-2">3. Dispute Resolution & Arbitration:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>In case of any dispute, Advocate Naeema Rehman Bhutta will act as the arbitrator.</li>
+                              <li>All arbitration decisions will be final and binding for both parties.</li>
+                              <li>The dispute resolution process will follow the legal norms applicable in the jurisdiction of the business.</li>
+                            </ul>
+                            <strong className="block text-white mt-4 mb-2">4. Confidentiality & Data Protection:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>Users agree not to disclose, share, or misuse any confidential company information or intellectual property.</li>
+                              <li>Any breach will result in legal action and financial damages as deemed appropriate by law.</li>
+                            </ul>
+                            <strong className="block text-white mt-4 mb-2">5. Voluntary Consent:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>All payments and participation in services are made voluntarily, and users fully agree to the terms and conditions.</li>
+                              <li>The company holds no liability for payments made under false claims or third-party misuse.</li>
+                            </ul>
+                            <div className="mt-4">
+                              <span className="inline-block mr-2">☐</span>I have read and agree to the terms mentioned above.<br />
+                              <span className="inline-block mr-2">☐</span>I consent to proceed with payment and services under these conditions.
+                            </div>
+                            <button type="button" className="text-blue-400 underline mt-2" onClick={() => setShowNOCDetails(false)}>Hide Details</button>
+                          </div>
+                        )}
+                        <Link href="/terms" className="text-blue-400 hover:text-blue-300 underline">
+                          Read the full User Agreement →
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* NON-DISCLOSURE AGREEMENT (NDA) */}
                     <div className="flex items-start gap-4 p-6 bg-slate-700/30 rounded-xl border border-slate-600/50">
                       <Checkbox
                         id="ndaAccepted"
@@ -172,38 +306,48 @@ export default function GetStarted() {
                             Non-Disclosure Agreement (NDA)
                           </label>
                         </div>
-                        <p className="text-slate-300 mb-4">
-                          I agree to the terms of the Non-Disclosure Agreement to protect confidential information shared during our discussions.
-                        </p>
+                        {!showNDADetails ? (
+                          <div className="text-slate-300 mb-4 text-sm">
+                            <span className="font-semibold">Summary:</span> By checking this box, you agree to keep all shared information confidential. <button type="button" className="text-blue-400 underline ml-2" onClick={() => setShowNDADetails(true)}>More Details</button>
+                          </div>
+                        ) : (
+                          <div className="text-slate-300 mb-4 text-sm space-y-2">
+                            <strong className="block text-white mb-2">1. Confidential Information:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>Both parties agree to protect all sensitive information, including project details, financials, code, designs, and any business data shared during the engagement.</li>
+                            </ul>
+                            <strong className="block text-white mt-4 mb-2">2. Obligation of Confidentiality:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>You agree not to share, replicate, distribute, or leak any confidential material or communications received during or after the project term.</li>
+                            </ul>
+                            <strong className="block text-white mt-4 mb-2">3. Exceptions:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>This agreement does not apply to:</li>
+                              <ul className="list-disc ml-10">
+                                <li>Public domain information.</li>
+                                <li>Information already known before the agreement.</li>
+                                <li>Information disclosed by legal obligation (e.g., court order).</li>
+                              </ul>
+                            </ul>
+                            <strong className="block text-white mt-4 mb-2">4. Legal Consequences:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>Breach of this NDA may result in:</li>
+                              <ul className="list-disc ml-10">
+                                <li>Immediate termination of the agreement.</li>
+                                <li>Legal action.</li>
+                                <li>Compensation for damages, loss of business, and reputational harm.</li>
+                              </ul>
+                            </ul>
+                            <strong className="block text-white mt-4 mb-2">5. Agreement Term:</strong>
+                            <ul className="list-disc ml-6">
+                              <li>This NDA will remain effective for the duration of the project and for 2 years after its conclusion.</li>
+                            </ul>
+                           
+                            <button type="button" className="text-blue-400 underline mt-2" onClick={() => setShowNDADetails(false)}>Hide Details</button>
+                          </div>
+                        )}
                         <Link href="/nda" className="text-blue-400 hover:text-blue-300 underline">
                           Read the full NDA →
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Terms & Conditions */}
-                    <div className="flex items-start gap-4 p-6 bg-slate-700/30 rounded-xl border border-slate-600/50">
-                      <Checkbox
-                        id="termsAccepted"
-                        name="termsAccepted"
-                        checked={formData.termsAccepted}
-                        onCheckedChange={(checked) =>
-                          setFormData({ ...formData, termsAccepted: checked as boolean })
-                        }
-                        className="mt-1"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <FileText className="w-5 h-5 text-blue-400" />
-                          <label htmlFor="termsAccepted" className="text-lg font-semibold text-white cursor-pointer">
-                            Terms & Conditions
-                          </label>
-                        </div>
-                        <p className="text-slate-300 mb-4">
-                          I agree to the Terms & Conditions governing our business relationship and project engagements.
-                        </p>
-                        <Link href="/terms" className="text-blue-400 hover:text-blue-300 underline">
-                          Read the full Terms & Conditions →
                         </Link>
                       </div>
                     </div>

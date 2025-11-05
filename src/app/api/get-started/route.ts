@@ -3,10 +3,10 @@ import { google } from 'googleapis';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, phone, ndaAccepted, termsAccepted } = await request.json();
+  const { name, email, phone, countryCode, cnic, ndaAccepted, termsAccepted } = await request.json();
 
     // Validate required fields
-    if (!name || !email || !phone) {
+    if (!name || !email || !phone || !countryCode || !cnic) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare data for Google Sheets
     const timestamp = new Date().toISOString();
-    const values = [[timestamp, name, email, phone, ndaAccepted ? 'Yes' : 'No', termsAccepted ? 'Yes' : 'No']];
+  const values = [[timestamp, name, email, `${countryCode} ${phone}`, cnic, ndaAccepted ? 'Yes' : 'No', termsAccepted ? 'Yes' : 'No']];
 
     if (SPREADSHEET_ID && GOOGLE_SERVICE_ACCOUNT_KEY) {
       try {
@@ -96,10 +96,10 @@ export async function POST(request: NextRequest) {
               // Add headers to the new sheet
               const headerResponse = await sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
-                range: `${SHEET_NAME}!A1:F1`,
+                range: `${SHEET_NAME}!A1:G1`,
                 valueInputOption: 'RAW',
                 requestBody: {
-                  values: [['Timestamp', 'Name', 'Email', 'Phone', 'NDA Accepted', 'Terms Accepted']],
+                  values: [['Timestamp', 'Name', 'Email', 'Phone', 'CNIC', 'NDA Accepted', 'Terms Accepted']],
                 },
               });
               console.log('Headers added successfully');
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
         // Append data to Google Sheets
         await sheets.spreadsheets.values.append({
           spreadsheetId: SPREADSHEET_ID,
-          range: `${SHEET_NAME}!A:F`,
+          range: `${SHEET_NAME}!A:G`,
           valueInputOption: 'RAW',
           requestBody: {
             values: values,
@@ -131,6 +131,8 @@ export async function POST(request: NextRequest) {
       name,
       email,
       phone,
+      countryCode,
+      cnic,
       ndaAccepted,
       termsAccepted,
       timestamp

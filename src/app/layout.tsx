@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Poppins, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -22,10 +22,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SyncroSol - Premium Digital Solutions",
-  description: "Elevate your business with cutting-edge technology and premium digital experiences.",
+  title: "Syncro IT Solutions - Premium Digital Solutions",
+  description: "Syncro IT Solutions: Elevate your business with cutting-edge technology and premium digital experiences.",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/SS_favicon.png",
+    shortcut: "/SS_favicon.png",
+    apple: "/SS_favicon.png",
   },
 };
 
@@ -36,6 +38,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/SS_favicon.png" type="image/png" />
+        <link rel="shortcut icon" href="/SS_favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/SS_favicon.png" type="image/png" />
+      </head>
       <body
         className={`${poppins.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
@@ -45,9 +52,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <Toaster position="top-right" richColors />
+          <ConditionalLayout>{children}</ConditionalLayout>
         </ThemeProvider>
       </body>
     </html>

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -33,13 +34,13 @@ export default function Contact() {
 
       if (response.ok) {
         setFormData({ name: "", email: "", message: "" });
-        alert("Thank you for your message! We'll get back to you soon.");
+        toast.success("Thank you for your message! We'll get back to you soon.");
       } else {
         throw new Error('Failed to send message');
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Sorry, there was an error sending your message. Please try again.");
+      toast.error("Sorry, there was an error sending your message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

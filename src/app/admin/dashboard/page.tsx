@@ -14,6 +14,8 @@ interface UserData {
   name: string;
   email: string;
   phone: string;
+  countryCode?: string;
+  cnic?: string;
   company: string;
   message: string;
   ndaAccepted: boolean;
@@ -384,6 +386,12 @@ export default function AdminDashboard() {
                           </p>
                           <p className="text-white">{user.email}</p>
                         </div>
+                        {user.type === 'get-started' && user.countryCode && (
+                          <div>
+                            <p className="text-slate-400 text-sm">Country Code</p>
+                            <p className="text-white">{user.countryCode}</p>
+                          </div>
+                        )}
                         {user.phone && (
                           <div>
                             <p className="text-slate-400 text-sm flex items-center gap-1">
@@ -391,6 +399,12 @@ export default function AdminDashboard() {
                               Phone
                             </p>
                             <p className="text-white">{user.phone}</p>
+                          </div>
+                        )}
+                        {user.type === 'get-started' && user.cnic && (
+                          <div>
+                            <p className="text-slate-400 text-sm">CNIC</p>
+                            <p className="text-white">{user.cnic}</p>
                           </div>
                         )}
                         {user.company && (

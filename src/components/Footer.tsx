@@ -24,9 +24,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="text-2xl font-bold text-primary mb-4">SyncroSol</h3>
+            <h3 className="text-2xl font-bold text-primary mb-4">Syncro IT Solutions</h3>
             <p className="text-gray-300 mb-2">
-              Empowering businesses with digital and AI-driven solutions.
+              Syncro IT Solutions empowers businesses with digital and AI-driven solutions.
             </p>
             <p className="text-gray-300 text-sm">
               F11 markaz, Islamabad, Pakistan
@@ -64,7 +64,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center">
           <p className="text-gray-300">
-            © 2025 SyncroSol. All rights reserved.
+            © 2025 Syncro IT Solutions. All rights reserved.
           </p>
         </div>
       </div>

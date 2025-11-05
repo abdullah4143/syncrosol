@@ -8,6 +8,8 @@ interface SubmissionData {
   name: string;
   email: string;
   phone: string;
+  countryCode?: string;
+  cnic?: string;
   company: string;
   message: string;
   ndaAccepted: boolean;
@@ -90,7 +92,7 @@ export async function GET() {
         try {
           const getStartedResponse = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${GET_STARTED_SHEET_NAME}!A:F`,
+            range: `${GET_STARTED_SHEET_NAME}!A:G`,
           });
 
           const getStartedRows = getStartedResponse.data.values || [];
@@ -104,10 +106,11 @@ export async function GET() {
             name: row[1] || '',
             email: row[2] || '',
             phone: row[3] || '',
+            cnic: row[4] || '',
             company: '',
             message: '',
-            ndaAccepted: row[4] === 'Yes' || row[4] === 'true',
-            termsAccepted: row[5] === 'Yes' || row[5] === 'true',
+            ndaAccepted: row[5] === 'Yes' || row[5] === 'true',
+            termsAccepted: row[6] === 'Yes' || row[6] === 'true',
           }));
           console.log(`Fetched ${getStartedData.length} get-started submissions from Google Sheets`);
         } catch (getStartedError: unknown) {

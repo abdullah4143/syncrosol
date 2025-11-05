@@ -99,7 +99,7 @@ export default function Home() {
         subheadline="From design to automation — we build digital experiences that grow your business."
         ctaButtons={[
           { text: "Get Started", style: "primary", href: "/contact" },
-          { text: "View Projects", style: "secondary", href: "/projects" }
+          { text: "View Projects", style: "primary", href: "/projects" }
         ]}
         layout="split"
       />

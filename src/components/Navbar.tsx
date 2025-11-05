@@ -50,7 +50,7 @@ const Navbar = () => {
             <Link href="/" className="flex items-center space-x-2">
               <Sparkles className="w-8 h-8 text-primary" />
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                SyncroSol
+                Syncro IT Solutions
               </span>
             </Link>
           </motion.div>
