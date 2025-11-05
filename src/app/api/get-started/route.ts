@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
                   });
                   console.log('Sheet verified to exist');
                   break;
-                } catch (verifyError) {
+                } catch {
                   retries--;
                   if (retries > 0) {
                     console.log(`Waiting for sheet creation, retries left: ${retries}`);
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
               }
 
               // Add headers to the new sheet
-              const headerResponse = await sheets.spreadsheets.values.update({
+              await sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
                 range: `${SHEET_NAME}!A1:G1`,
                 valueInputOption: 'RAW',
